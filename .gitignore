@@ -1,3 +1,9 @@
+# not adding the union history data 
+**/labor union dataset/*
+**/labor union dataset/
+labor*union*dataset/
+labor\ union\ dataset/
+
 # History files
 .Rhistory
 .Rapp.history
