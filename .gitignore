@@ -6,6 +6,8 @@ labor\ union\ dataset/
 
 # ignore .dta file 
 *.dta
+*.dat
+*.gz
 
 # History files
 .Rhistory
