@@ -4,6 +4,9 @@
 labor*union*dataset/
 labor\ union\ dataset/
 
+# ignore .dta file 
+*.dta
+
 # History files
 .Rhistory
 .Rapp.history
