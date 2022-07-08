@@ -1,1 +1,7 @@
-<html><body>You are being <a href="https://live.usa.datadownload.ipums.org/sso_login?return_url=https%3A%2F%2Flive.usa.datadownload.ipums.org%2Fweb%2Fextracts%2Fusa%2F1839498%2Fusa_00016.R">redirected</a>.</body></html>
+# NOTE: To load data, you must download both the extract's data and the DDI
+# and also set the working directory to the folder with these files (or change the path below).
+
+if (!require("ipumsr")) stop("Reading IPUMS data into R requires the ipumsr package. It can be installed using the following command: install.packages('ipumsr')")
+
+ddi <- read_ipums_ddi("usa_00016.xml")
+data <- read_ipums_micro(ddi)
