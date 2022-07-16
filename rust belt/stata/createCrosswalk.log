@@ -1,9 +1,8 @@
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/createC
-> rosswalk.log
+       log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/createCrosswalk.log
   log type:  text
- opened on:  15 Jul 2022, 22:47:15
+ opened on:  16 Jul 2022, 18:00:44
 
 . cd "$work"
 /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata
@@ -19,16 +18,14 @@
 
 Duplicates in terms of all variables
 
-(14,081,200 observations deleted)
+(0 observations are duplicates)
 
 . save "$work/crossWalk.dta", replace
-file /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/crossWalk.dta s
-> aved
+file /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/crossWalk.dta saved
 
 . log close
       name:  <unnamed>
-       log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/createC
-> rosswalk.log
+       log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/createCrosswalk.log
   log type:  text
- closed on:  15 Jul 2022, 22:47:30
---------------------------------------------------------------------------------
+ closed on:  16 Jul 2022, 18:00:44
+------------------------------------------------------------------------------------------------------------------------------
