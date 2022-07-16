@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleaning.log
   log type:  text
- opened on:  16 Jul 2022, 13:23:10
+ opened on:  16 Jul 2022, 13:53:40
 
 . cd "$work"
 /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata
@@ -72,7 +72,7 @@ Sorted by:
 
 . *******************************************************************
 
-. gen manu = 0
+. gen nondurb = 0
 
 . 
 . */
@@ -80,11 +80,11 @@ Sorted by:
 . 
 . * nondurable
 
-. replace manu = 1 if (ind1990 >= 100) & (ind1990<= 222)
+. replace nondurb = 1 if (ind1990 >= 100) & (ind1990<= 222)
 (283,485 real changes made)
 
 . 
-. gen equip = 0
+. gen durb = 0
 
 . 
 . */
@@ -92,7 +92,7 @@ Sorted by:
 . 
 . * durable
 
-. replace equip = 1 if (ind1990 >=230) & (ind1990 <= 350)
+. replace durb = 1 if (ind1990 >=230) & (ind1990 <= 350)
 (273,426 real changes made)
 
 . *******************************************************************
@@ -126,12 +126,17 @@ Sorted by:
 . 
 . * collapse by perwt
 
-. collapse (sum) perwt, by(year rb manu equip empstat)
+. collapse (sum) perwt, by(year rb nondurb durb empstat)
 
-. gsort year empstat manu equip rb
+. gsort year empstat nondurb durb rb
 
-. drop if (empstat != 1) & (manu!= 0 | equip!= 0)
-(24 observations deleted)
+. * only keeping the employeed
+
+. keep if empstat == 1
+(36 observations deleted)
+
+. 
+. * drop if (empstat != 1) & (nondurb!= 0 | durb!= 0)
 
 . * bysort year: egen pop_national = total(perwt)
 
@@ -142,34 +147,34 @@ Sorted by:
 . bysort year empstat rb: egen pop_by_empstat_rb = total(perwt)
 
 . 
-. gen pop_manu = perwt if manu == 1
-(24 missing values generated)
+. gen pop_nondurb = perwt if nondurb == 1
+(12 missing values generated)
 
-. bysort year rb: egen pop_manu_and_equip = total(perwt) if (manu == 1 | equip == 1)
-(18 missing values generated)
+. bysort year rb: egen pop_nondurb_and_durb = total(perwt) if (nondurb == 1 | durb == 1)
+(6 missing values generated)
 
 . 
-. drop perwt equip
+. drop perwt durb
 
 . 
 . * only keep the sector specifics numbers to empstat == 1
 
-. gsort year rb empstat pop_manu
+. gsort year rb empstat pop_nondurb
 
-. bysort year rb: replace pop_manu = pop_manu[_n-1] if empstat == 1 & missing(pop_manu)
+. bysort year rb: replace pop_nondurb = pop_nondurb[_n-1] if empstat == 1 & missing(pop_nondurb)
 (12 real changes made)
 
-. replace pop_manu = 0 if missing(pop_manu)
-(12 real changes made)
+. replace pop_nondurb = 0 if missing(pop_nondurb)
+(0 real changes made)
 
 . 
-. gsort year rb empstat pop_manu_and_equip
+. gsort year rb empstat pop_nondurb_and_durb
 
-. bysort year rb: replace pop_manu_and_equip = pop_manu_and_equip[_n-1] if empstat == 1 & missing(pop_manu_and_equip)
+. bysort year rb: replace pop_nondurb_and_durb = pop_nondurb_and_durb[_n-1] if empstat == 1 & missing(pop_nondurb_and_durb)
 (6 real changes made)
 
-. replace pop_manu_and_equip = 0 if missing(pop_manu_and_equip)
-(12 real changes made)
+. replace pop_nondurb_and_durb = 0 if missing(pop_nondurb_and_durb)
+(0 real changes made)
 
 . duplicates drop
 
@@ -179,22 +184,22 @@ Duplicates in terms of all variables
 
 . gsort year rb empstat
 
-. order year rb empstat manu
+. order year rb empstat nondurb
 
 . 
-. reshape wide pop*, i(year rb empstat) j(manu)
+. reshape wide pop*, i(year rb empstat) j(nondurb)
 (note: j = 0 1)
 
 Data                               long   ->   wide
 -----------------------------------------------------------------------------
-Number of obs.                       24   ->      18
+Number of obs.                       12   ->       6
 Number of variables                   8   ->      11
-j variable (2 values)              manu   ->   (dropped)
+j variable (2 values)           nondurb   ->   (dropped)
 xij variables:
                          pop_by_empstat   ->   pop_by_empstat0 pop_by_empstat1
                       pop_by_empstat_rb   ->   pop_by_empstat_rb0 pop_by_empstat_rb1
-                               pop_manu   ->   pop_manu0 pop_manu1
-                     pop_manu_and_equip   ->   pop_manu_and_equip0 pop_manu_and_equip1
+                            pop_nondurb   ->   pop_nondurb0 pop_nondurb1
+                   pop_nondurb_and_durb   ->   pop_nondurb_and_durb0 pop_nondurb_and_durb1
 -----------------------------------------------------------------------------
 
 . drop *1
@@ -202,32 +207,114 @@ xij variables:
 . * rename (pop_national0 pop_total0 pop_by_empstat0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop
 > _manu pop_manu_and_equip)
 
-. rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_manu0 pop_manu_and_equip0) ( pop_by_empstat pop_by_empstat_rb  pop_manu pop_
-> manu_and_equip)
+. rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_nondurb0 pop_nondurb_and_durb0) ( pop_by_empstat pop_by_empstat_rb pop_nondu
+> rb pop_nondurb_and_durb)
 
 . 
 . drop if empstat != 1
-(12 observations deleted)
+(0 observations deleted)
 
-. bysort year: egen pop_manu_national = total(pop_manu)
+. bysort year: egen pop_nondurb_national = total(pop_nondurb)
 
-. bysort year: egen pop_manu_equip_national = total(pop_manu_and_equip)
+. bysort year: egen pop_nondurb_durb_national = total(pop_nondurb_and_durb)
 
-. gen manu_r_nation = pop_manu_national/pop_by_empstat
+. gen nondurb_r_nation = pop_nondurb_national/pop_by_empstat
 
-. gen manu_equip_r_nation = pop_manu_equip_national/pop_by_empstat
+. gen nondurb_durb_r_nation = pop_nondurb_durb_national/pop_by_empstat
 
 . 
-. gen manu_r_rb = pop_manu/pop_by_empstat_rb if rb == 1
+. gen nondurb_r_rb = pop_nondurb/pop_by_empstat_rb if rb == 1
 (3 missing values generated)
 
-. gen manu_equip_r_rb = pop_manu_and_equip/pop_by_empstat_rb if rb == 1
+. gen nondurb_durb_r_rb = pop_nondurb_and_durb/pop_by_empstat_rb if rb == 1
 (3 missing values generated)
+
+. 
+. tab year nondurb_durb_r_nation
+
+    Census |      nondurb_durb_r_nation
+      year |  .1144129   .2035004    .224321 |     Total
+-----------+---------------------------------+----------
+      1950 |         0          0          2 |         2 
+      1970 |         0          2          0 |         2 
+      2000 |         2          0          0 |         2 
+-----------+---------------------------------+----------
+     Total |         2          2          2 |         6 
+
+
+. tab year nondurb_durb_r_rb
+
+    Census |        nondurb_durb_r_rb
+      year |  .1327977   .2383427   .2761809 |     Total
+-----------+---------------------------------+----------
+      1950 |         0          0          1 |         1 
+      1970 |         0          1          0 |         1 
+      2000 |         1          0          0 |         1 
+-----------+---------------------------------+----------
+     Total |         1          1          1 |         3 
+
+
+. 
+. tab year nondurb_r_nation
+
+    Census |         nondurb_r_nation
+      year |  .0552286   .0983764   .1208176 |     Total
+-----------+---------------------------------+----------
+      1950 |         0          0          2 |         2 
+      1970 |         0          2          0 |         2 
+      2000 |         2          0          0 |         2 
+-----------+---------------------------------+----------
+     Total |         2          2          2 |         6 
+
+
+. tab year nondurb_r_rb
+
+    Census |           nondurb_r_rb
+      year |  .0605002   .0975126      .1296 |     Total
+-----------+---------------------------------+----------
+      1950 |         0          0          1 |         1 
+      1970 |         0          1          0 |         1 
+      2000 |         1          0          0 |         1 
+-----------+---------------------------------+----------
+     Total |         1          1          1 |         3 
+
+
+. 
+. drop empstat pop*
+
+. 
+. gsort year -rb
+
+. bysort year: replace nondurb_r_rb = nondurb_r_rb[_n-1] if missing(nondurb_r_rb)
+(3 real changes made)
+
+. 
+. bysort year: replace nondurb_durb_r_rb = nondurb_durb_r_rb[_n-1] if missing(nondurb_durb_r_rb)
+(3 real changes made)
+
+. 
+. drop rb
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(3 observations deleted)
+
+. keep year *_durb_*
+
+. 
+. rename (nondurb_durb_r_nation nondurb_durb_r_rb) (nationalRate rustbeltRate)
+
+. 
+. outsheet using "$work/output.csv", comma
+file /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/output.csv already exists
+r(602);
 
 . 
 . log close
       name:  <unnamed>
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleaning.log
   log type:  text
- closed on:  16 Jul 2022, 13:23:23
+ closed on:  16 Jul 2022, 13:53:53
 ------------------------------------------------------------------------------------------------------------------------------

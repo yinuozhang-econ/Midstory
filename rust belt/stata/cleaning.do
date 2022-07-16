@@ -19,7 +19,7 @@ desc
 * SIC 33: as late as 1993, 70 per- cent of total employment was within steel and iron foundries, steel rolling mills, and steel and iron pipe factories.
 * SIC 37: the bulk of employment was directly in the production of cars, trucks, buses, and motor homes.
 *******************************************************************
-gen manu = 0
+gen nondurb = 0
 /* replace manu = 1 if (ind1990 == 270) | /// * Blast furnaces, steelworks, rolling and finishing mills
 (ind1990 == 271) | /// * Iron and steel foundries
 (ind1990 == 272) | /// * primary aluminum industries
@@ -32,8 +32,8 @@ gen manu = 0
 (ind1990 == 301)  /* Metal industries, n.s.*/
 */
 
-* nondurable
-replace nondur = 1 if (ind1990 >= 100) & (ind1990<= 222)
+* nondurable + mining + construction
+replace nondurb = 1 if (ind1990 >= 40) & (ind1990<= 222)
 
 gen durb = 0
 /* replace equip = 1 if (ind1990 == 310) | /// * Engines and turbines
@@ -46,6 +46,7 @@ gen durb = 0
 
 * durable
 replace durb = 1 if (ind1990 >=230) & (ind1990 <= 350)
+* “Mining” or “Extractive industries” or “Manufacturing” or “Construction”. From growth and structural transformation handbook chapter, Appendix A on sector assignments
 *******************************************************************
 * identify rustbelt region
 * Indiana, Illinois, Michigan, New York, Ohio, Wisconsin, Pennsylvania, and West Virginia
@@ -71,43 +72,67 @@ replace empl = 1 if empstat == 1
 
 
 * collapse by perwt
-collapse (sum) perwt, by(year rb nondur durb empstat)
-gsort year empstat nondur durb rb
-drop if (empstat != 1) & (nondur!= 0 | durb!= 0)
+collapse (sum) perwt, by(year rb nondurb durb empstat)
+gsort year empstat nondurb durb rb
+* only keeping the employeed
+keep if empstat == 1
+
+* drop if (empstat != 1) & (nondurb!= 0 | durb!= 0)
 * bysort year: egen pop_national = total(perwt)
 * bysort year rb: egen pop_total = total(perwt)
 bysort year empstat: egen pop_by_empstat = total(perwt)
 bysort year empstat rb: egen pop_by_empstat_rb = total(perwt)
 
-gen pop_nondur = perwt if nondur == 1
-bysort year rb: egen pop_nondur_and_durb = total(perwt) if (nondur == 1 | durb == 1)
+gen pop_nondurb = perwt if nondurb == 1
+bysort year rb: egen pop_nondurb_and_durb = total(perwt) if (nondurb == 1 | durb == 1)
 
 drop perwt durb
 
 * only keep the sector specifics numbers to empstat == 1
-gsort year rb empstat pop_nondur
-bysort year rb: replace pop_nondur = pop_nondur[_n-1] if empstat == 1 & missing(pop_nondur)
-replace pop_nondur = 0 if missing(pop_nondur)
+gsort year rb empstat pop_nondurb
+bysort year rb: replace pop_nondurb = pop_nondurb[_n-1] if empstat == 1 & missing(pop_nondurb)
+replace pop_nondurb = 0 if missing(pop_nondurb)
 
-gsort year rb empstat pop_nondur_and_durb
-bysort year rb: replace pop_nondur_and_durb = pop_nondur_and_durb[_n-1] if empstat == 1 & missing(pop_nondur_and_durb)
-replace pop_nondur_and_durb = 0 if missing(pop_nondur_and_durb)
+gsort year rb empstat pop_nondurb_and_durb
+bysort year rb: replace pop_nondurb_and_durb = pop_nondurb_and_durb[_n-1] if empstat == 1 & missing(pop_nondurb_and_durb)
+replace pop_nondurb_and_durb = 0 if missing(pop_nondurb_and_durb)
 duplicates drop
 gsort year rb empstat
-order year rb empstat nondur
+order year rb empstat nondurb
 
-reshape wide pop*, i(year rb empstat) j(nondur)
+reshape wide pop*, i(year rb empstat) j(nondurb)
 drop *1
 * rename (pop_national0 pop_total0 pop_by_empstat0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop_manu pop_manu_and_equip)
-rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_nondur0 pop_nondur_and_durb0) ( pop_by_empstat pop_by_empstat_rb  pop_nondur pop_nondur_and_durb)
+rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_nondurb0 pop_nondurb_and_durb0) ( pop_by_empstat pop_by_empstat_rb pop_nondurb pop_nondurb_and_durb)
 
 drop if empstat != 1
-bysort year: egen pop_nondur_national = total(pop_nondur)
-bysort year: egen pop_nondur_durb_national = total(pop_nondur_and_durb)
-gen nondur_r_nation = pop_nondur_national/pop_by_empstat
-gen nondur_durb_r_nation = pop_nondur_durb_national/pop_by_empstat
+bysort year: egen pop_nondurb_national = total(pop_nondurb)
+bysort year: egen pop_nondurb_durb_national = total(pop_nondurb_and_durb)
+gen nondurb_r_nation = pop_nondurb_national/pop_by_empstat
+gen nondurb_durb_r_nation = pop_nondurb_durb_national/pop_by_empstat
 
-gen nondur_r_rb = pop_nondur/pop_by_empstat_rb if rb == 1
-gen nondur_durb_r_rb = pop_nondur_and_durb/pop_by_empstat_rb if rb == 1
+gen nondurb_r_rb = pop_nondurb/pop_by_empstat_rb if rb == 1
+gen nondurb_durb_r_rb = pop_nondurb_and_durb/pop_by_empstat_rb if rb == 1
+
+tab year nondurb_durb_r_nation
+tab year nondurb_durb_r_rb
+
+tab year nondurb_r_nation
+tab year nondurb_r_rb
+
+drop empstat pop*
+
+gsort year -rb
+bysort year: replace nondurb_r_rb = nondurb_r_rb[_n-1] if missing(nondurb_r_rb)
+
+bysort year: replace nondurb_durb_r_rb = nondurb_durb_r_rb[_n-1] if missing(nondurb_durb_r_rb)
+
+drop rb
+duplicates drop
+keep year *_durb_*
+
+rename (nondurb_durb_r_nation nondurb_durb_r_rb) (nationalRate rustbeltRate)
+
+outsheet using "$work/output.csv", comma replace
 
 log close
