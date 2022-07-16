@@ -1,0 +1,34 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/createC
+> rosswalk.log
+  log type:  text
+ opened on:  15 Jul 2022, 22:47:15
+
+. cd "$work"
+/Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata
+
+. 
+. use "$work/crossWalk.dta", clear
+
+. keep ind1990 indnaics
+
+. gsort ind1990 indnaics
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(14,081,200 observations deleted)
+
+. save "$work/crossWalk.dta", replace
+file /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/crossWalk.dta s
+> aved
+
+. log close
+      name:  <unnamed>
+       log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/createC
+> rosswalk.log
+  log type:  text
+ closed on:  15 Jul 2022, 22:47:30
+--------------------------------------------------------------------------------

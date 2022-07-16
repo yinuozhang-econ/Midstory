@@ -3,16 +3,11 @@
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleanin
 > g.log
   log type:  text
- opened on:  15 Jul 2022, 22:34:59
+ opened on:  15 Jul 2022, 23:25:21
 
 . cd "$work"
 /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata
 
-. 
-. use "$work/crossWalk.dta", clear
-
-. 
-. 
 . use "$work/cleaning.dta", clear
 
 . 
@@ -74,7 +69,32 @@ Sorted by:
 . * SIC 37: the bulk of employment was directly in the production of cars, truck
 > s, buses, and motor homes.
 . *******************************************************************
+. gen manu = 0
+
+. replace manu = 1 if (ind1990 == 270) | /// * Blast furnaces, steelworks, rolli
+> ng and finishing mills
+> (ind1990 == 271) | /// * Iron and steel foundries
+> (ind1990 == 272) | /// * primary aluminum industries
+> (ind1990 == 280) | /// * Other primary metal industries
+> (ind1990 == 281) | /// * Cutlery, handtools, and general hardware
+> (ind1990 == 282) | /// * Fabricated structural metal products
+> (ind1990 == 291) | /// * Metal forgings and stampings
+> (ind1990 == 292) | /// * Ordnance
+> (ind1990 == 300) | /// * Misc fabricated metal products
+> (ind1990 == 301)  /* Metal industries, n.s.*/
+(80,982 real changes made)
+
 . 
+. gen equip = 0
+
+. replace equip = 1 if (ind1990 == 310) | /// * Engines and turbines
+> (ind1990 == 311) | /// * Farm machinery and equipment
+> (ind1990 == 312) | /// * Construction and material handling machines
+> (ind1990 == 320) | /// * Metalworking machineary
+> (ind1990 == 351) | /// * Motor vehicles and motor vehicle equipment
+> (ind1990 == 361)  /* Railroad locomotives and equipment */
+(64,080 real changes made)
+
 . 
 . *******************************************************************
 . * identify rustbelt region
@@ -91,10 +111,10 @@ Sorted by:
 > (statefip == 39) | /// * Ohio
 > (statefip == 55) | /// * Wisconsin
 > (statefip == 42) | /// * Pennsylvania
-> (statefip == 54) /// * West Virginia
-> 
+> (statefip == 54) /* West Virginia */
 (2,220,274 real changes made)
 
+. 
 . 
 . 
 . log close
@@ -102,5 +122,5 @@ Sorted by:
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleanin
 > g.log
   log type:  text
- closed on:  15 Jul 2022, 22:35:01
+ closed on:  15 Jul 2022, 23:25:26
 --------------------------------------------------------------------------------

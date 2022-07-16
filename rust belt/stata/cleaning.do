@@ -19,7 +19,25 @@ desc
 * SIC 33: as late as 1993, 70 per- cent of total employment was within steel and iron foundries, steel rolling mills, and steel and iron pipe factories.
 * SIC 37: the bulk of employment was directly in the production of cars, trucks, buses, and motor homes.
 *******************************************************************
+gen manu = 0
+replace manu = 1 if (ind1990 == 270) | /// * Blast furnaces, steelworks, rolling and finishing mills
+(ind1990 == 271) | /// * Iron and steel foundries
+(ind1990 == 272) | /// * primary aluminum industries
+(ind1990 == 280) | /// * Other primary metal industries
+(ind1990 == 281) | /// * Cutlery, handtools, and general hardware
+(ind1990 == 282) | /// * Fabricated structural metal products
+(ind1990 == 291) | /// * Metal forgings and stampings
+(ind1990 == 292) | /// * Ordnance
+(ind1990 == 300) | /// * Misc fabricated metal products
+(ind1990 == 301)  /* Metal industries, n.s.*/
 
+gen equip = 0
+replace equip = 1 if (ind1990 == 310) | /// * Engines and turbines
+(ind1990 == 311) | /// * Farm machinery and equipment
+(ind1990 == 312) | /// * Construction and material handling machines
+(ind1990 == 320) | /// * Metalworking machineary
+(ind1990 == 351) | /// * Motor vehicles and motor vehicle equipment
+(ind1990 == 361)  /* Railroad locomotives and equipment */
 
 *******************************************************************
 * identify rustbelt region
@@ -34,7 +52,7 @@ replace rb = 1 if (statefip == 17 ) | /// * Indiana
 (statefip == 39) | /// * Ohio
 (statefip == 55) | /// * Wisconsin
 (statefip == 42) | /// * Pennsylvania
-(statefip == 54) /// * West Virginia
+(statefip == 54) /* West Virginia */
 
 
 
