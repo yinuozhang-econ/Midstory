@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleaning.log
   log type:  text
- opened on:  16 Jul 2022, 13:10:36
+ opened on:  16 Jul 2022, 13:23:10
 
 . cd "$work"
 /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata
@@ -74,18 +74,27 @@ Sorted by:
 
 . gen manu = 0
 
-. replace manu = 1 if (ind1990 == 270) | (ind1990 == 271) | (ind1990 == 272) | (ind1990 == 280) | (ind1990 == 281) | (ind1990 
-> == 282) | (ind1990 == 291) | (ind1990 == 292) | (ind1990 == 300) | (ind1990 == 301)  
-(80,982 real changes made)
+. 
+. */
+
+. 
+. * nondurable
+
+. replace manu = 1 if (ind1990 >= 100) & (ind1990<= 222)
+(283,485 real changes made)
 
 . 
 . gen equip = 0
 
-. replace equip = 1 if (ind1990 == 310) | (ind1990 == 311) | (ind1990 == 312) | (ind1990 == 320) | (ind1990 == 351) | (ind1990
->  == 361)  
-(64,080 real changes made)
+. 
+. */
 
 . 
+. * durable
+
+. replace equip = 1 if (ind1990 >=230) & (ind1990 <= 350)
+(273,426 real changes made)
+
 . *******************************************************************
 
 . * identify rustbelt region
@@ -122,7 +131,7 @@ Sorted by:
 . gsort year empstat manu equip rb
 
 . drop if (empstat != 1) & (manu!= 0 | equip!= 0)
-(23 observations deleted)
+(24 observations deleted)
 
 . * bysort year: egen pop_national = total(perwt)
 
@@ -193,35 +202,32 @@ xij variables:
 . * rename (pop_national0 pop_total0 pop_by_empstat0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop
 > _manu pop_manu_and_equip)
 
-. rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop_manu p
-> op_manu_and_equip)
-corresponding oldnames and newnames mismatch
-    You specified or implied 4 oldnames and 5 newnames;
-r(198);
+. rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_manu0 pop_manu_and_equip0) ( pop_by_empstat pop_by_empstat_rb  pop_manu pop_
+> manu_and_equip)
 
 . 
 . drop if empstat != 1
 (12 observations deleted)
 
 . bysort year: egen pop_manu_national = total(pop_manu)
-pop_manu ambiguous abbreviation
-r(111);
 
 . bysort year: egen pop_manu_equip_national = total(pop_manu_and_equip)
 
 . gen manu_r_nation = pop_manu_national/pop_by_empstat
-pop_manu_national not found
-r(111);
 
 . gen manu_equip_r_nation = pop_manu_equip_national/pop_by_empstat
-pop_by_empstat ambiguous abbreviation
-r(111);
 
 . 
+. gen manu_r_rb = pop_manu/pop_by_empstat_rb if rb == 1
+(3 missing values generated)
+
+. gen manu_equip_r_rb = pop_manu_and_equip/pop_by_empstat_rb if rb == 1
+(3 missing values generated)
+
 . 
 . log close
       name:  <unnamed>
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleaning.log
   log type:  text
- closed on:  16 Jul 2022, 13:10:50
+ closed on:  16 Jul 2022, 13:23:23
 ------------------------------------------------------------------------------------------------------------------------------

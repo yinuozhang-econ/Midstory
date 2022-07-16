@@ -20,7 +20,7 @@ desc
 * SIC 37: the bulk of employment was directly in the production of cars, trucks, buses, and motor homes.
 *******************************************************************
 gen manu = 0
-replace manu = 1 if (ind1990 == 270) | /// * Blast furnaces, steelworks, rolling and finishing mills
+/* replace manu = 1 if (ind1990 == 270) | /// * Blast furnaces, steelworks, rolling and finishing mills
 (ind1990 == 271) | /// * Iron and steel foundries
 (ind1990 == 272) | /// * primary aluminum industries
 (ind1990 == 280) | /// * Other primary metal industries
@@ -30,15 +30,22 @@ replace manu = 1 if (ind1990 == 270) | /// * Blast furnaces, steelworks, rolling
 (ind1990 == 292) | /// * Ordnance
 (ind1990 == 300) | /// * Misc fabricated metal products
 (ind1990 == 301)  /* Metal industries, n.s.*/
+*/
 
-gen equip = 0
-replace equip = 1 if (ind1990 == 310) | /// * Engines and turbines
+* nondurable
+replace nondur = 1 if (ind1990 >= 100) & (ind1990<= 222)
+
+gen durb = 0
+/* replace equip = 1 if (ind1990 == 310) | /// * Engines and turbines
 (ind1990 == 311) | /// * Farm machinery and equipment
 (ind1990 == 312) | /// * Construction and material handling machines
 (ind1990 == 320) | /// * Metalworking machineary
 (ind1990 == 351) | /// * Motor vehicles and motor vehicle equipment
 (ind1990 == 361)  /* Railroad locomotives and equipment */
+*/
 
+* durable
+replace durb = 1 if (ind1990 >=230) & (ind1990 <= 350)
 *******************************************************************
 * identify rustbelt region
 * Indiana, Illinois, Michigan, New York, Ohio, Wisconsin, Pennsylvania, and West Virginia
@@ -64,41 +71,43 @@ replace empl = 1 if empstat == 1
 
 
 * collapse by perwt
-collapse (sum) perwt, by(year rb manu equip empstat)
-gsort year empstat manu equip rb
-drop if (empstat != 1) & (manu!= 0 | equip!= 0)
+collapse (sum) perwt, by(year rb nondur durb empstat)
+gsort year empstat nondur durb rb
+drop if (empstat != 1) & (nondur!= 0 | durb!= 0)
 * bysort year: egen pop_national = total(perwt)
 * bysort year rb: egen pop_total = total(perwt)
 bysort year empstat: egen pop_by_empstat = total(perwt)
 bysort year empstat rb: egen pop_by_empstat_rb = total(perwt)
 
-gen pop_manu = perwt if manu == 1
-bysort year rb: egen pop_manu_and_equip = total(perwt) if (manu == 1 | equip == 1)
+gen pop_nondur = perwt if nondur == 1
+bysort year rb: egen pop_nondur_and_durb = total(perwt) if (nondur == 1 | durb == 1)
 
-drop perwt equip
+drop perwt durb
 
 * only keep the sector specifics numbers to empstat == 1
-gsort year rb empstat pop_manu
-bysort year rb: replace pop_manu = pop_manu[_n-1] if empstat == 1 & missing(pop_manu)
-replace pop_manu = 0 if missing(pop_manu)
+gsort year rb empstat pop_nondur
+bysort year rb: replace pop_nondur = pop_nondur[_n-1] if empstat == 1 & missing(pop_nondur)
+replace pop_nondur = 0 if missing(pop_nondur)
 
-gsort year rb empstat pop_manu_and_equip
-bysort year rb: replace pop_manu_and_equip = pop_manu_and_equip[_n-1] if empstat == 1 & missing(pop_manu_and_equip)
-replace pop_manu_and_equip = 0 if missing(pop_manu_and_equip)
+gsort year rb empstat pop_nondur_and_durb
+bysort year rb: replace pop_nondur_and_durb = pop_nondur_and_durb[_n-1] if empstat == 1 & missing(pop_nondur_and_durb)
+replace pop_nondur_and_durb = 0 if missing(pop_nondur_and_durb)
 duplicates drop
 gsort year rb empstat
-order year rb empstat manu
+order year rb empstat nondur
 
-reshape wide pop*, i(year rb empstat) j(manu)
+reshape wide pop*, i(year rb empstat) j(nondur)
 drop *1
 * rename (pop_national0 pop_total0 pop_by_empstat0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop_manu pop_manu_and_equip)
-rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_manu0 pop_manu_and_equip0) ( pop_by_empstat pop_by_empstat_rb  pop_manu pop_manu_and_equip)
+rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_nondur0 pop_nondur_and_durb0) ( pop_by_empstat pop_by_empstat_rb  pop_nondur pop_nondur_and_durb)
 
 drop if empstat != 1
-bysort year: egen pop_manu_national = total(pop_manu)
-bysort year: egen pop_manu_equip_national = total(pop_manu_and_equip)
-gen manu_r_nation = pop_manu_national/pop_by_empstat
-gen manu_equip_r_nation = pop_manu_equip_national/pop_by_empstat
+bysort year: egen pop_nondur_national = total(pop_nondur)
+bysort year: egen pop_nondur_durb_national = total(pop_nondur_and_durb)
+gen nondur_r_nation = pop_nondur_national/pop_by_empstat
+gen nondur_durb_r_nation = pop_nondur_durb_national/pop_by_empstat
 
+gen nondur_r_rb = pop_nondur/pop_by_empstat_rb if rb == 1
+gen nondur_durb_r_rb = pop_nondur_and_durb/pop_by_empstat_rb if rb == 1
 
 log close
