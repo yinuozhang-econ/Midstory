@@ -54,6 +54,16 @@ replace rb = 1 if (statefip == 17 ) | /// * Indiana
 (statefip == 42) | /// * Pennsylvania
 (statefip == 54) /* West Virginia */
 
+* drop
+drop if (empstatd == 0) | /// * N/A
+(empstatd == 13) | /// * Armed forces
+(empstatd == 14) | /// * Armed forces--at work
+(empstatd == 15) /* Armed forces--not at work but with job */
+gen empl = 0
+replace empl = 1 if empstat == 1
 
+
+* collapse by perwt
+collapse (sum) perwt, by(year rb manu equip empstat)
 
 log close
