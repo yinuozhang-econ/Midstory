@@ -26,7 +26,7 @@ desc
 * Indiana, Illinois, Michigan, New York, Ohio, Wisconsin, Pennsylvania, and West Virginia
 * Definition coming from Alder etal 21
 *******************************************************************
-gen rustBelt = 0
+gen rb = 0
 replace rb = 1 if (statefip == 17 ) | /// * Indiana
 (statefip == 18) | /// * Illinois
 (statefip == 26) | /// * Michigan
