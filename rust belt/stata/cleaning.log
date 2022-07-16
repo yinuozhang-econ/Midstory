@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleaning.log
   log type:  text
- opened on:  15 Jul 2022, 23:35:48
+ opened on:  16 Jul 2022, 13:10:36
 
 . cd "$work"
 /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata
@@ -119,10 +119,109 @@ Sorted by:
 
 . collapse (sum) perwt, by(year rb manu equip empstat)
 
+. gsort year empstat manu equip rb
+
+. drop if (empstat != 1) & (manu!= 0 | equip!= 0)
+(23 observations deleted)
+
+. * bysort year: egen pop_national = total(perwt)
+
+. * bysort year rb: egen pop_total = total(perwt)
+
+. bysort year empstat: egen pop_by_empstat = total(perwt)
+
+. bysort year empstat rb: egen pop_by_empstat_rb = total(perwt)
+
+. 
+. gen pop_manu = perwt if manu == 1
+(24 missing values generated)
+
+. bysort year rb: egen pop_manu_and_equip = total(perwt) if (manu == 1 | equip == 1)
+(18 missing values generated)
+
+. 
+. drop perwt equip
+
+. 
+. * only keep the sector specifics numbers to empstat == 1
+
+. gsort year rb empstat pop_manu
+
+. bysort year rb: replace pop_manu = pop_manu[_n-1] if empstat == 1 & missing(pop_manu)
+(12 real changes made)
+
+. replace pop_manu = 0 if missing(pop_manu)
+(12 real changes made)
+
+. 
+. gsort year rb empstat pop_manu_and_equip
+
+. bysort year rb: replace pop_manu_and_equip = pop_manu_and_equip[_n-1] if empstat == 1 & missing(pop_manu_and_equip)
+(6 real changes made)
+
+. replace pop_manu_and_equip = 0 if missing(pop_manu_and_equip)
+(12 real changes made)
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(6 observations deleted)
+
+. gsort year rb empstat
+
+. order year rb empstat manu
+
+. 
+. reshape wide pop*, i(year rb empstat) j(manu)
+(note: j = 0 1)
+
+Data                               long   ->   wide
+-----------------------------------------------------------------------------
+Number of obs.                       24   ->      18
+Number of variables                   8   ->      11
+j variable (2 values)              manu   ->   (dropped)
+xij variables:
+                         pop_by_empstat   ->   pop_by_empstat0 pop_by_empstat1
+                      pop_by_empstat_rb   ->   pop_by_empstat_rb0 pop_by_empstat_rb1
+                               pop_manu   ->   pop_manu0 pop_manu1
+                     pop_manu_and_equip   ->   pop_manu_and_equip0 pop_manu_and_equip1
+-----------------------------------------------------------------------------
+
+. drop *1
+
+. * rename (pop_national0 pop_total0 pop_by_empstat0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop
+> _manu pop_manu_and_equip)
+
+. rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop_manu p
+> op_manu_and_equip)
+corresponding oldnames and newnames mismatch
+    You specified or implied 4 oldnames and 5 newnames;
+r(198);
+
+. 
+. drop if empstat != 1
+(12 observations deleted)
+
+. bysort year: egen pop_manu_national = total(pop_manu)
+pop_manu ambiguous abbreviation
+r(111);
+
+. bysort year: egen pop_manu_equip_national = total(pop_manu_and_equip)
+
+. gen manu_r_nation = pop_manu_national/pop_by_empstat
+pop_manu_national not found
+r(111);
+
+. gen manu_equip_r_nation = pop_manu_equip_national/pop_by_empstat
+pop_by_empstat ambiguous abbreviation
+r(111);
+
+. 
 . 
 . log close
       name:  <unnamed>
        log:  /Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata/cleaning.log
   log type:  text
- closed on:  15 Jul 2022, 23:36:01
+ closed on:  16 Jul 2022, 13:10:50
 ------------------------------------------------------------------------------------------------------------------------------

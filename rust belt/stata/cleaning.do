@@ -65,5 +65,40 @@ replace empl = 1 if empstat == 1
 
 * collapse by perwt
 collapse (sum) perwt, by(year rb manu equip empstat)
+gsort year empstat manu equip rb
+drop if (empstat != 1) & (manu!= 0 | equip!= 0)
+* bysort year: egen pop_national = total(perwt)
+* bysort year rb: egen pop_total = total(perwt)
+bysort year empstat: egen pop_by_empstat = total(perwt)
+bysort year empstat rb: egen pop_by_empstat_rb = total(perwt)
+
+gen pop_manu = perwt if manu == 1
+bysort year rb: egen pop_manu_and_equip = total(perwt) if (manu == 1 | equip == 1)
+
+drop perwt equip
+
+* only keep the sector specifics numbers to empstat == 1
+gsort year rb empstat pop_manu
+bysort year rb: replace pop_manu = pop_manu[_n-1] if empstat == 1 & missing(pop_manu)
+replace pop_manu = 0 if missing(pop_manu)
+
+gsort year rb empstat pop_manu_and_equip
+bysort year rb: replace pop_manu_and_equip = pop_manu_and_equip[_n-1] if empstat == 1 & missing(pop_manu_and_equip)
+replace pop_manu_and_equip = 0 if missing(pop_manu_and_equip)
+duplicates drop
+gsort year rb empstat
+order year rb empstat manu
+
+reshape wide pop*, i(year rb empstat) j(manu)
+drop *1
+* rename (pop_national0 pop_total0 pop_by_empstat0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop_manu pop_manu_and_equip)
+rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_manu0 pop_manu_and_equip0) ( pop_by_empstat pop_by_empstat_rb  pop_manu pop_manu_and_equip)
+
+drop if empstat != 1
+bysort year: egen pop_manu_national = total(pop_manu)
+bysort year: egen pop_manu_equip_national = total(pop_manu_and_equip)
+gen manu_r_nation = pop_manu_national/pop_by_empstat
+gen manu_equip_r_nation = pop_manu_equip_national/pop_by_empstat
+
 
 log close
