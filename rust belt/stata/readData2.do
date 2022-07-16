@@ -300,3 +300,5 @@ label define ind1990_lbl 960 `"Military Reserves or National Guard"', add
 label define ind1990_lbl 992 `"Last worked 1984 or earlier"', add
 label define ind1990_lbl 999 `"DID NOT RESPOND"', add
 label values ind1990 ind1990_lbl
+
+save `"$work/crossWalk.dta"', replace
