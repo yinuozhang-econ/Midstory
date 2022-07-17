@@ -6,5 +6,5 @@ Rust Belt Economy code archive (CENSUS)
   - available on codebook.rtf
 **************
 ## Stata folder
-- Run setup.do first. Remember to change directory to where your file is stored at locally
-- 
+- See the README(./stata/README.md)
+-

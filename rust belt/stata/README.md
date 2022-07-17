@@ -5,3 +5,5 @@
   - readData2.do
     - This exists because I forgot to include INDNAICS in my variable selection
     - note that this is unnecessary if you include INDNAICS in your selection
+    - In the final output I actually didn't utilize INDNAICS so it's fine to not even run it...
+- Third step: run creatStat.do to produce the output.csv   
