@@ -10,11 +10,11 @@ cap log close
 ********************************************
 
 * Location for CENSUS data - you'd have to change this path to your local path where you store your data
-global data "/Users/yinuozhang/Dropbox/Personal/Midstory/rust belt"
+global data "/Users/yinuozhang/Dropbox/Personal/Midstory/rustBelt"
 
 ********************************************
 ***     PATH SPECIFICATIONS : WORK
 ********************************************
 
 * Location for working directory - you'd have to
-global work "/Users/yinuozhang/Dropbox/Personal/Midstory/rust belt/stata"
+global work "/Users/yinuozhang/Dropbox/Personal/Midstory/rustBelt/stata"

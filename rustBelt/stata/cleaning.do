@@ -77,11 +77,8 @@ gsort year empstat nondurb durb rb
 * only keeping the employeed
 keep if empstat == 1
 
-* drop if (empstat != 1) & (nondurb!= 0 | durb!= 0)
-* bysort year: egen pop_national = total(perwt)
-* bysort year rb: egen pop_total = total(perwt)
-bysort year empstat: egen pop_by_empstat = total(perwt)
-bysort year empstat rb: egen pop_by_empstat_rb = total(perwt)
+bysort year: egen totalEmp = total(perwt)
+bysort year rb: egen rb_totalEmp = total(perwt)
 
 gen pop_nondurb = perwt if nondurb == 1
 bysort year rb: egen pop_nondurb_and_durb = total(perwt) if (nondurb == 1 | durb == 1)
@@ -102,8 +99,7 @@ order year rb empstat nondurb
 
 reshape wide pop*, i(year rb empstat) j(nondurb)
 drop *1
-* rename (pop_national0 pop_total0 pop_by_empstat0 pop_manu0 pop_manu_and_equip0) (pop_national pop_total pop_by_empstat pop_manu pop_manu_and_equip)
-rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_nondurb0 pop_nondurb_and_durb0) ( pop_by_empstat pop_by_empstat_rb pop_nondurb pop_nondurb_and_durb)
+rename ( pop_by_empstat0 pop_by_empstat_rb0 pop_nondurb0 pop_nondurb_and_durb0) ( totalEmp rb_totalEmp pop_nondurb pop_nondurb_and_durb)
 
 drop if empstat != 1
 bysort year: egen pop_nondurb_national = total(pop_nondurb)
@@ -111,8 +107,8 @@ bysort year: egen pop_nondurb_durb_national = total(pop_nondurb_and_durb)
 gen nondurb_r_nation = pop_nondurb_national/pop_by_empstat
 gen nondurb_durb_r_nation = pop_nondurb_durb_national/pop_by_empstat
 
-gen nondurb_r_rb = pop_nondurb/pop_by_empstat_rb if rb == 1
-gen nondurb_durb_r_rb = pop_nondurb_and_durb/pop_by_empstat_rb if rb == 1
+gen nondurb_r_rb = pop_nondurb/rb_totalEmp if rb == 1
+gen nondurb_durb_r_rb = pop_nondurb_and_durb/rb_totalEmp if rb == 1
 
 tab year nondurb_durb_r_nation
 tab year nondurb_durb_r_rb
