@@ -6,5 +6,5 @@ Rust Belt Economy code archive (CENSUS)
   - available on codebook.rtf
 **************
 ## Stata folder
-- See the [README](./stata/README.md)
+- See the [README](./rust\ belt/stata/README.md)
 -
